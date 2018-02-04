@@ -7,7 +7,7 @@
 OPENALPR_INCLUDE_DIR=../../openalpr/
 OPENALPR_LIB_DIR=../../build/openalpr/
 #JAVA_PATH=/usr/lib/jvm/java-1.7.0-openjdk-amd64
-JAVA_PATH=/usr/lib/jvm/java-7-oracle
+JAVA_PATH=/usr/lib/jvm/java-1.8.0-openjdk-amd64
 
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:.:${OPENALPR_LIB_DIR}
 # Compile java
