@@ -18,9 +18,7 @@ public class PlateRecognizer {
 
 			// Set pattern to Maryland
 			alpr.setDefaultRegion("md");
-			System.out.println("Start to recognize");
 			AlprResults results = null;
-			System.out.println("Ready to recognize");
 
 			try {
 				results = alpr.recognize("1.jpg");
