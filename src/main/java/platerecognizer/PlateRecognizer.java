@@ -11,7 +11,7 @@ import java.lang.Thread;
 
 public class PlateRecognizer {
 		private Alpr alpr;
-		public void recognize() {
+		public void recognize(String filename) {
 			alpr = new Alpr("us", "openalpr.conf", "runtime_data");
 			// Set top N candidates returned to 20
 			alpr.setTopN(20);
@@ -21,7 +21,7 @@ public class PlateRecognizer {
 			AlprResults results = null;
 
 			try {
-				results = alpr.recognize("1.jpg");
+				results = alpr.recognize(filename);
 			} catch (Exception e) {
 				Thread.currentThread().interrupt();
 			}
