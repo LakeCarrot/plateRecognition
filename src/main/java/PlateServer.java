@@ -5,8 +5,12 @@ package platerecognition;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
 import io.grpc.stub.StreamObserver;
+
 import java.io.IOException;
 import java.util.logging.Logger;
+import java.io.BufferedOutputStream;
+import java.io.FileOutputStream;
+
 import platerecognition.PlateRecognitionGrpc;
 import platerecognition.Platerecognition.PlateRecognitionRequest;
 import platerecognition.Platerecognition.PlateRecognitionReply;
@@ -64,13 +68,33 @@ public class PlateServer {
 
 		@Override 
 	  public void offloading(PlateRecognitionRequest req, StreamObserver<PlateRecognitionReply> responseObserver) {
-			PlateRecognitionReply reply = PlateRecognitionReply.newBuilder()
-				.setMessage("You shall not pass!")
-				.build();
+			BufferedOutputStream mBufferedOutputStream = null;
+			String filename = "";
+			byte[] data = req.getData().toByteArray();
+			String name = req.getName();
+			logger.info("receive a message!");
+			try {
+				filename = "receive_" + name;
+				mBufferedOutputStream = new BufferedOutputStream(new FileOutputStream(filename));
+				mBufferedOutputStream.write(data);
+				mBufferedOutputStream.flush();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			try {
+				mBufferedOutputStream.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			} finally {
+				mBufferedOutputStream = null;
+			}
 			System.out.println("Plate? Plate!");
 			PlateRecognizer plate = new PlateRecognizer();
 			System.out.println("Debug: Successfully new a recognizer");
-			plate.recognize();
+			plate.recognize(filename);
+			PlateRecognitionReply reply = PlateRecognitionReply.newBuilder()
+				.setMessage("You shall not pass!")
+				.build();
 			responseObserver.onNext(reply);
 			responseObserver.onCompleted();
 		}
