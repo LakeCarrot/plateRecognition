@@ -16,8 +16,18 @@ import platerecognition.Platerecognition.PlateRecognitionRequest;
 import platerecognition.Platerecognition.PlateRecognitionReply;
 import platerecognizer.PlateRecognizer;
 
+import io.grpc.ManagedChannel;
+import io.grpc.ManagedChannelBuilder;
+import edgeOffloading.OffloadingGrpc;
+import edgeOffloading.OffloadingOuterClass.OffloadingRequest;
+import edgeOffloading.OffloadingOuterClass.OffloadingReply;
+
 public class PlateServer {
   private static final Logger logger = Logger.getLogger(PlateServer.class.getName());
+	private static double effectiveRate = 0;
+	private static double maxRate = 0;
+	private static double minRate = 0;
+	private static final double alpa = 0.5;
 
   private Server server;
 
@@ -68,11 +78,13 @@ public class PlateServer {
 
 		@Override 
 	  public void offloading(PlateRecognitionRequest req, StreamObserver<PlateRecognitionReply> responseObserver) {
+			long begin = System.currentTimeMillis();
 			BufferedOutputStream mBufferedOutputStream = null;
 			String filename = "";
 			byte[] data = req.getData().toByteArray();
+			long dataSize = data.length;
 			String name = req.getName();
-			logger.info("receive a message!");
+			System.out.println("receive a message!");
 			try {
 				filename = "receive_" + name;
 				mBufferedOutputStream = new BufferedOutputStream(new FileOutputStream(filename));
@@ -90,13 +102,36 @@ public class PlateServer {
 			}
 			System.out.println("Plate? Plate!");
 			PlateRecognizer plate = new PlateRecognizer();
-			System.out.println("Debug: Successfully new a recognizer");
 			plate.recognize(filename);
+			long end = System.currentTimeMillis();
 			PlateRecognitionReply reply = PlateRecognitionReply.newBuilder()
 				.setMessage("You shall not pass!")
 				.build();
 			responseObserver.onNext(reply);
 			responseObserver.onCompleted();
+			// After finishing processing the request, update the speed information and decide whether to inform the change of speed to nbrs
+			double currentRate = dataSize/(end-begin);
+			/*
+			if(effectiveRate == 0) {
+				effectiveRate = currentRate;
+			} else {
+		  	effectiveRate = alpa * effectiveRate + (1 - alpa) * currentRate;
+			}
+			if((effectiveRate - minRate)/minRate > 0.1 || (effectiveRate - maxRate)/maxRate > 0.1) {
+				updateInfo(effectiveRate);
+			}
+			minRate = Math.min(effectiveRate, minRate);
+			maxRate = Math.max(effectiveRate, maxRate);
+			*/
+			updateInfo(currentRate);
+		}
+
+		private void updateInfo(double rate) {
+			ManagedChannel mChannel;
+			mChannel = ManagedChannelBuilder.forAddress("172.28.142.176", 50050).usePlaintext(true).build();
+			OffloadingGrpc.OffloadingBlockingStub stub = OffloadingGrpc.newBlockingStub(mChannel);
+			OffloadingRequest message = OffloadingRequest.newBuilder().setMessage("testIP" + ":" + "plate" + ":" + Double.toString(rate)).build();
+			OffloadingReply reply = stub.startService(message);
 		}
 	}
 }

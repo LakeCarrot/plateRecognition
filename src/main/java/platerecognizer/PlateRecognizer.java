@@ -25,6 +25,7 @@ public class PlateRecognizer {
 			} catch (Exception e) {
 				Thread.currentThread().interrupt();
 			}
+			/*
 			System.out.format("  %-15s%-8s\n", "Plate Number", "Confidence");
 			for (AlprPlateResult result : results.getPlates())
 			{
@@ -36,6 +37,7 @@ public class PlateRecognizer {
 					System.out.format("%-15s%-8f\n", plate.getCharacters(), plate.getOverallConfidence());
 				}
 			}
+			*/
 			alpr.unload();
 		}
 }
