@@ -38,6 +38,6 @@ public class PlateRecognizer {
 				}
 			}
 			*/
-			alpr.unload();
+			//alpr.unload();
 		}
 }
