@@ -123,6 +123,8 @@ public class PlateServer {
 			minRate = Math.min(effectiveRate, minRate);
 			maxRate = Math.max(effectiveRate, maxRate);
 			*/
+			String hostIP = System.getenv("HOSTIP");
+			System.out.println(hostIP);
 			updateInfo(currentRate);
 		}
 
@@ -130,7 +132,8 @@ public class PlateServer {
 			ManagedChannel mChannel;
 			mChannel = ManagedChannelBuilder.forAddress("172.28.142.176", 50050).usePlaintext(true).build();
 			OffloadingGrpc.OffloadingBlockingStub stub = OffloadingGrpc.newBlockingStub(mChannel);
-			OffloadingRequest message = OffloadingRequest.newBuilder().setMessage("testIP" + ":" + "plate" + ":" + Double.toString(rate)).build();
+			String hostIP = System.getenv("HOSTIP");
+			OffloadingRequest message = OffloadingRequest.newBuilder().setMessage(hostIP + ":" + "plate" + ":" + Double.toString(rate)).build();
 			OffloadingReply reply = stub.startService(message);
 		}
 	}
