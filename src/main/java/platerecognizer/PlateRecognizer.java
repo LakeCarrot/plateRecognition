@@ -21,14 +21,14 @@ public class PlateRecognizer {
 
 			// Set pattern to Maryland
 			//alpr.setDefaultRegion("md");
+			lock.writeLock().lock();
 			AlprResults results = null;
 			try {
-				lock.writeLock().lock();
 				results = alpr.recognize(filename);
-				lock.writeLock().unlock();
 			} catch (Exception e) {
 				Thread.currentThread().interrupt();
 			}
+			lock.writeLock().unlock();
 			/*
 			System.out.format("  %-15s%-8s\n", "Plate Number", "Confidence");
 			for (AlprPlateResult result : results.getPlates())
