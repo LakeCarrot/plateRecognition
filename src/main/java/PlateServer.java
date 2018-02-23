@@ -101,6 +101,7 @@ public class PlateServer {
 				mBufferedOutputStream = null;
 			}
 			System.out.println("Plate? Plate!");
+			System.out.println("This is the new version!");
 			PlateRecognizer plate = new PlateRecognizer();
 			plate.recognize(filename);
 			long end = System.currentTimeMillis();
