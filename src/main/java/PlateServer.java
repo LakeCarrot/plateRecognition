@@ -123,7 +123,7 @@ public class PlateServer {
 			*/
 			String hostIP = System.getenv("HOSTIP");
 			System.out.println(hostIP);
-			//updateInfo(currentRate);
+			updateInfo(currentRate);
 			responseObserver.onNext(reply);
 			responseObserver.onCompleted();
 		}
