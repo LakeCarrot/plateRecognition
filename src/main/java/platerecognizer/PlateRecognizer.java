@@ -6,27 +6,28 @@ import com.openalpr.jni.Alpr;
 import com.openalpr.jni.AlprPlate;
 import com.openalpr.jni.AlprPlateResult;
 import com.openalpr.jni.AlprResults;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import java.lang.Thread;
 
 public class PlateRecognizer {
+		static ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 		public void recognize(String filename) {
+			lock.writeLock().lock();
 			Alpr alpr = new Alpr("us", "openalpr.conf", "runtime_data");
+			lock.writeLock().unlock();
 			// Set top N candidates returned to 20
 			alpr.setTopN(20);
 
 			// Set pattern to Maryland
 			//alpr.setDefaultRegion("md");
 			AlprResults results = null;
-
-			if(alpr.isLoaded()) {
-				try {
-					results = alpr.recognize(filename);
-				} catch (Exception e) {
-					Thread.currentThread().interrupt();
-				}
-			} else {
-				System.out.println("ALPR not loaded!");
+			try {
+				lock.writeLock().lock();
+				results = alpr.recognize(filename);
+				lock.writeLock().unlock();
+			} catch (Exception e) {
+				Thread.currentThread().interrupt();
 			}
 			/*
 			System.out.format("  %-15s%-8s\n", "Plate Number", "Confidence");
@@ -41,6 +42,8 @@ public class PlateRecognizer {
 				}
 			}
 			*/
+			lock.writeLock().lock();
 			alpr.unload();
+			lock.writeLock().unlock();
 		}
 }
