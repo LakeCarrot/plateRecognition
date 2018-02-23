@@ -107,8 +107,6 @@ public class PlateServer {
 			PlateRecognitionReply reply = PlateRecognitionReply.newBuilder()
 				.setMessage("You shall not pass!")
 				.build();
-			responseObserver.onNext(reply);
-			responseObserver.onCompleted();
 			// After finishing processing the request, update the speed information and decide whether to inform the change of speed to nbrs
 			double currentRate = dataSize/(end-begin);
 			/*
@@ -125,7 +123,9 @@ public class PlateServer {
 			*/
 			String hostIP = System.getenv("HOSTIP");
 			System.out.println(hostIP);
-			updateInfo(currentRate);
+			//updateInfo(currentRate);
+			responseObserver.onNext(reply);
+			responseObserver.onCompleted();
 		}
 
 		private void updateInfo(double rate) {
