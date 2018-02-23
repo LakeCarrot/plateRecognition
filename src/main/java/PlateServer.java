@@ -104,7 +104,6 @@ public class PlateServer {
 			PlateRecognizer plate = new PlateRecognizer();
 			plate.recognize(filename);
 			long end = System.currentTimeMillis();
-			plate = null;
 			PlateRecognitionReply reply = PlateRecognitionReply.newBuilder()
 				.setMessage("You shall not pass!")
 				.build();

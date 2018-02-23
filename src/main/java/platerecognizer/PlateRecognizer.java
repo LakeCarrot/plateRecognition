@@ -41,7 +41,6 @@ public class PlateRecognizer {
 				}
 			}
 			*/
-			//alpr.unload();
-			alpr = null;
+			alpr.unload();
 		}
 }
