@@ -6,44 +6,48 @@ import com.openalpr.jni.Alpr;
 import com.openalpr.jni.AlprPlate;
 import com.openalpr.jni.AlprPlateResult;
 import com.openalpr.jni.AlprResults;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import java.lang.Thread;
 
-public class PlateRecognizer {
-		static ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
-		public void recognize(String filename) {
-			lock.writeLock().lock();
-			Alpr alpr = new Alpr("us", "openalpr.conf", "runtime_data");
-			lock.writeLock().unlock();
-			// Set top N candidates returned to 20
-			alpr.setTopN(20);
+import io.grpc.ManagedChannel;
+import io.grpc.ManagedChannelBuilder;
+import edgeOffloading.OffloadingGrpc;
+import edgeOffloading.OffloadingOuterClass.OffloadingRequest;
+import edgeOffloading.OffloadingOuterClass.OffloadingReply;
 
-			// Set pattern to Maryland
-			//alpr.setDefaultRegion("md");
-			lock.writeLock().lock();
+public class PlateRecognizer {
+	static ReentrantLock lock = new ReentrantLock();
+	public void recognize(String filename, long dataSize) {
+		lock.lock();
+		Alpr alpr = new Alpr("us", "openalpr.conf", "runtime_data");
+		lock.unlock();
+		// Set top N candidates returned to 20
+		alpr.setTopN(20);
+
+		// Set pattern to Maryland
+		//alpr.setDefaultRegion("md");
+		for (int i = 0; i < 1000000000; i++) {
+			long begin = System.currentTimeMillis();
+			lock.lock();
 			AlprResults results = null;
 			try {
 				results = alpr.recognize(filename);
 			} catch (Exception e) {
 				Thread.currentThread().interrupt();
 			}
-			lock.writeLock().unlock();
-			/*
-			System.out.format("  %-15s%-8s\n", "Plate Number", "Confidence");
-			for (AlprPlateResult result : results.getPlates())
-			{
-				for (AlprPlate plate : result.getTopNPlates()) {
-					if (plate.isMatchesTemplate())
-						System.out.print("  * ");
-					else
-						System.out.print("  - ");
-					System.out.format("%-15s%-8f\n", plate.getCharacters(), plate.getOverallConfidence());
-				}
-			}
-			*/
-			lock.writeLock().lock();
-			alpr.unload();
-			lock.writeLock().unlock();
+			lock.unlock();
+			long end = System.currentTimeMillis();
+			double currentRate = dataSize/(end-begin);
+			updateInfo(currentRate);
 		}
+	}
+	private void updateInfo(double rate) {
+		ManagedChannel mChannel;
+		mChannel = ManagedChannelBuilder.forAddress("172.28.142.176", 50050).usePlaintext(true).build();
+		OffloadingGrpc.OffloadingBlockingStub stub = OffloadingGrpc.newBlockingStub(mChannel);
+		String hostIP = System.getenv("HOSTIP");
+		OffloadingRequest message = OffloadingRequest.newBuilder().setMessage(hostIP + ":" + "plate" + ":" + Double.toString(rate)).build();
+		OffloadingReply reply = stub.startService(message);
+	}
 }

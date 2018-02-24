@@ -78,7 +78,6 @@ public class PlateServer {
 
 		@Override 
 	  public void offloading(PlateRecognitionRequest req, StreamObserver<PlateRecognitionReply> responseObserver) {
-			long begin = System.currentTimeMillis();
 			BufferedOutputStream mBufferedOutputStream = null;
 			String filename = "";
 			byte[] data = req.getData().toByteArray();
@@ -103,13 +102,12 @@ public class PlateServer {
 			System.out.println("Plate? Plate!");
 			System.out.println("This is the new version!");
 			PlateRecognizer plate = new PlateRecognizer();
-			plate.recognize(filename);
-			long end = System.currentTimeMillis();
+			plate.recognize(filename, dataSize);
 			PlateRecognitionReply reply = PlateRecognitionReply.newBuilder()
 				.setMessage("You shall not pass!")
 				.build();
 			// After finishing processing the request, update the speed information and decide whether to inform the change of speed to nbrs
-			double currentRate = dataSize/(end-begin);
+			double currentRate = 0;
 			/*
 			if(effectiveRate == 0) {
 				effectiveRate = currentRate;
