@@ -27,7 +27,7 @@ public class PlateRecognizer {
 
 		// Set pattern to Maryland
 		//alpr.setDefaultRegion("md");
-		while(true)
+		while(true) {
 			long begin = System.currentTimeMillis();
 			lock.lock();
 			AlprResults results = null;
