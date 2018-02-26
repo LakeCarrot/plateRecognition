@@ -6,7 +6,7 @@ import com.openalpr.jni.Alpr;
 import com.openalpr.jni.AlprPlate;
 import com.openalpr.jni.AlprPlateResult;
 import com.openalpr.jni.AlprResults;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import java.lang.Thread;
 
@@ -17,29 +17,22 @@ import edgeOffloading.OffloadingOuterClass.OffloadingRequest;
 import edgeOffloading.OffloadingOuterClass.OffloadingReply;
 
 public class PlateRecognizer {
-	static ReentrantLock lock = new ReentrantLock();
+	static ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 	public void recognize(String filename, long dataSize) {
-		lock.lock();
 		Alpr alpr = new Alpr("us", "openalpr.conf", "runtime_data");
-		lock.unlock();
 		// Set top N candidates returned to 20
-		alpr.setTopN(20);
-
-		// Set pattern to Maryland
-		//alpr.setDefaultRegion("md");
+		//alpr.setTopN(20);
 		while(true) {
-			long begin = System.currentTimeMillis();
-			lock.lock();
-			AlprResults results = null;
 			try {
-				results = alpr.recognize(filename);
-			} catch (Exception e) {
-				Thread.currentThread().interrupt();
+				long begin = System.currentTimeMillis();
+				alpr.recognize(filename);
+				long end = System.currentTimeMillis();
+				double currentRate = dataSize/(end-begin);
+				updateInfo(currentRate);
+			} catch(Exception e) {
+				System.out.println("Something wrong!");
+				continue;
 			}
-			lock.unlock();
-			long end = System.currentTimeMillis();
-			double currentRate = dataSize/(end-begin);
-			updateInfo(currentRate);
 		}
 	}
 	private void updateInfo(double rate) {
