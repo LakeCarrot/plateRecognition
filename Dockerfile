@@ -35,7 +35,11 @@ RUN gradle installDist
 RUN echo $LD_LIBRARY_PATH
 RUN ldconfig
 
+RUN git clone https://github.com/LakeCarrot/plateProcess.git
+RUN cd plateProcess && gradlew installDist && pwd
+
 EXPOSE 50052
 
+CMD cd plateProcess && git pull && gradle installDist
 CMD git pull && gradle installDist && ./build/install/plateRecognition/bin/plateRecognition
 

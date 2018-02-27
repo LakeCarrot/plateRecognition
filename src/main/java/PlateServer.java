@@ -100,14 +100,18 @@ public class PlateServer {
 				mBufferedOutputStream = null;
 			}
 			System.out.println("Plate? Plate!");
-			System.out.println("This is the new version!");
-			PlateRecognizer plate = new PlateRecognizer();
-			plate.recognize(filename, dataSize);
+			Runtime rt = Runtime.getRuntime();
+			try {
+				String command = "/plateRecognition/plateProcess/build/install/plateRecognition/bin/plateRecognition";
+				System.out.println("start to execute command!");
+				Process pr = rt.exec(command);
+			} catch (Exception e) {
+				Thread.currentThread().interrupt();
+			}
 			PlateRecognitionReply reply = PlateRecognitionReply.newBuilder()
 				.setMessage("You shall not pass!")
 				.build();
 			// After finishing processing the request, update the speed information and decide whether to inform the change of speed to nbrs
-			double currentRate = 0;
 			/*
 			if(effectiveRate == 0) {
 				effectiveRate = currentRate;
@@ -122,18 +126,9 @@ public class PlateServer {
 			*/
 			String hostIP = System.getenv("HOSTIP");
 			System.out.println(hostIP);
-			updateInfo(currentRate);
-			responseObserver.onNext(reply);
-			responseObserver.onCompleted();
-		}
-
-		private void updateInfo(double rate) {
-			ManagedChannel mChannel;
-			mChannel = ManagedChannelBuilder.forAddress("172.28.142.176", 50050).usePlaintext(true).build();
-			OffloadingGrpc.OffloadingBlockingStub stub = OffloadingGrpc.newBlockingStub(mChannel);
-			String hostIP = System.getenv("HOSTIP");
-			OffloadingRequest message = OffloadingRequest.newBuilder().setMessage(hostIP + ":" + "plate" + ":" + Double.toString(rate)).build();
-			OffloadingReply reply = stub.startService(message);
+			while(true) {
+				int a = 1;
+			}
 		}
 	}
 }

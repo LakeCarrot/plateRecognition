@@ -28,6 +28,7 @@ public class PlateRecognizer {
 				alpr.recognize(filename);
 				long end = System.currentTimeMillis();
 				double currentRate = dataSize/(end-begin);
+				System.out.println("" + dataSize); 
 				updateInfo(currentRate);
 			} catch(Exception e) {
 				System.out.println("Something wrong!");
