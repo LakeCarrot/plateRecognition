@@ -126,9 +126,8 @@ public class PlateServer {
 			*/
 			String hostIP = System.getenv("HOSTIP");
 			System.out.println(hostIP);
-			while(true) {
-				int a = 1;
-			}
+			responseObserver.onNext(reply);
+			responseObserver.onCompleted();
 		}
 	}
 }
