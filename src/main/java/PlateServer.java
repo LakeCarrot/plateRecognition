@@ -85,7 +85,7 @@ public class PlateServer {
 			String name = req.getName();
 			System.out.println("receive a message!");
 			try {
-				filename = "receive_" + name;
+				filename = "receive_1.jpg";
 				mBufferedOutputStream = new BufferedOutputStream(new FileOutputStream(filename));
 				mBufferedOutputStream.write(data);
 				mBufferedOutputStream.flush();
@@ -102,7 +102,7 @@ public class PlateServer {
 			System.out.println("Plate? Plate!");
 			Runtime rt = Runtime.getRuntime();
 			try {
-				String command = "/plateRecognition/plateProcess/build/install/plateRecognition/bin/plateRecognition";
+				String command = "/plateRecognition/plateProcess/build/install/plateRecognition/bin/plateRecognition " + name;
 				System.out.println("start to execute command!");
 				Process pr = rt.exec(command);
 			} catch (Exception e) {
